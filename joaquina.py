@@ -8,7 +8,7 @@ from faster_whisper import WhisperModel
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 # Exibe mensagem de crédito
-print("joaquina.py Script de fast-whisper para transcrição para diretórios, ZIPs e UFDR por Joaquim Ferreira.")
+print("joaquina.py Script de fast-whisper para transcrição de áudios em diretórios, ZIPs e UFDR por Joaquim Ferreira.")
 
 # Lista de extensões suportadas para áudio
 audio_extensions = ['.mp3', '.wav', '.ogg', '.opus', '.aac']
