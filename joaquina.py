@@ -126,7 +126,7 @@ def localizar_opus(entrada, model, selected_language):
 
     return arquivos_opus
 
-model_size = "large-v3"
+model_size = "turbo"
 model = WhisperModel(model_size, device="cuda", compute_type="float32")
 
 # Argumentos de linha de comando
