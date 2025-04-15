@@ -127,7 +127,7 @@ def localizar_opus(entrada, model, selected_language):
     return arquivos_opus
 
 model_size = "turbo"
-model = WhisperModel(model_size, device="cuda", compute_type="float32")
+model = WhisperModel(model_size, device="cuda", compute_type="float16")
 
 # Argumentos de linha de comando
 parser = argparse.ArgumentParser(description="Transcreva áudio de um arquivo ou diretório e gere arquivos TXT e CSV")
