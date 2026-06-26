@@ -1,0 +1,58 @@
+# Use uma imagem base oficial da NVIDIA com suporte a CUDA 12.6 e cuDNN 9
+FROM nvidia/cuda:12.6.0-cudnn-runtime-ubuntu22.04
+
+# Define variáveis de ambiente para evitar travamentos na instalação
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+
+# Instala dependências do sistema necessárias
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3-pip \
+    python3-dev \
+    ffmpeg \
+    git \
+    build-essential \
+    libsndfile1 \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
+
+# Atualiza o pip, setuptools e wheel
+RUN pip3 install --no-cache-dir --upgrade pip setuptools wheel
+
+# Tenta instalar o PyTorch normalmente com os hosts confiáveis.
+# SE falhar (||), ativa o modo ignorar SSL global do pip e tenta novamente.
+RUN pip3 install --no-cache-dir torch torchvision \
+    --index-url https://download.pytorch.org/whl/cu126 \
+    --trusted-host download.pytorch.org \
+    --trusted-host download-r2.pytorch.org \
+    --trusted-host pypi.nvidia.com \
+    || ( \
+    echo "Instalação padrão falhou. Forçando modo ignorar SSL..." && \
+    export PIP_CERT=false && \
+    pip3 install --no-cache-dir torch torchvision \
+    --index-url https://download.pytorch.org/whl/cu126 \
+    --trusted-host download.pytorch.org \
+    --trusted-host download-r2.pytorch.org \
+    --trusted-host pypi.nvidia.com \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    )
+
+# Instala o whisperX direto do repositório oficial do GitHub
+# Se falhar pelo SSL do git, desativa temporariamente a checagem do git e do pip
+RUN pip3 install --no-cache-dir git+https://github.com/m-bain/whisperX.git --trusted-host github.com \
+    || ( \
+    echo "Falha ao instalar WhisperX. Forçando contorno de segurança..." && \
+    git config --global http.sslVerify false && \
+    export PIP_CERT=false && \
+    pip3 install --no-cache-dir git+https://github.com/m-bain/whisperX.git \
+    --trusted-host github.com \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    )
+
+# Define o diretório de trabalho dentro do container
+WORKDIR /app
+
+# Comando padrão apenas para checar se a CLI do whisperx está respondendo
+CMD ["whisperx", "--help"]
